@@ -55,6 +55,8 @@ npm run dev
 | `DATABASE_URL` | да | Neon, подключение через пул (для приложения) |
 | `DATABASE_URL_UNPOOLED` | да | Neon, прямое подключение (для миграций) |
 | `AUTH_SECRET` | да | секрет для сессий Auth.js |
+| `STRIPE_SECRET_KEY` | для оплаты | секретный ключ Stripe; без него оплата отключена |
+| `STRIPE_WEBHOOK_SECRET` | для оплаты | секрет вебхука (`npm run stripe:setup -- --webhook <url>`) |
 | `RAWG_API_KEY` | нет | поиск по базе [RAWG](https://rawg.io/apidocs) (~500k игр). Без ключа поиск идёт по встроенному каталогу из ~200 игр |
 | `GEMINI_API_KEY` | нет | AI-рекомендации через Gemini ([получить ключ](https://aistudio.google.com/apikey)). Без AI-ключей включается алгоритм по жанрам |
 | `GEMINI_MODEL` | нет | по умолчанию `gemini-3.5-flash-lite` |
@@ -72,7 +74,17 @@ npm run dev
 
 Все лимиты задаются в одном месте: [src/lib/plans.ts](src/lib/plans.ts). Pro-доступ проверяется и на сервере (server actions и страницы), и в UI: на Free клик по Pro-функции открывает окно с предложением перейти на Pro.
 
-**Оплата не подключена.** Кнопка «Перейти на Pro» сразу меняет тариф (демо-режим) — см. `changePlan` в [src/actions/profile.ts](src/actions/profile.ts). При подключении платёжки там создаётся checkout-сессия, а смена `plan` переносится в вебхук.
+**Оплата — Stripe.** Pro стоит $4.99/мес или $39.99/год (подписка через Stripe Checkout). Управление подпиской (смена периода, карта, счета, отмена) — в клиентском портале Stripe из «Настроек». Тариф пользователя синхронизируется с подпиской через вебхук, при возврате с оплаты и при открытии настроек — см. [src/lib/billing.ts](src/lib/billing.ts).
+
+### Настройка Stripe
+
+```bash
+# в .env: STRIPE_SECRET_KEY="sk_test_..."
+npm run stripe:setup                                                   # товар и цены
+npm run stripe:setup -- --webhook https://<домен>/api/stripe/webhook   # + вебхук, печатает STRIPE_WEBHOOK_SECRET
+```
+
+Добавь `STRIPE_SECRET_KEY` и `STRIPE_WEBHOOK_SECRET` в переменные окружения Vercel. Для приёма настоящих платежей повтори те же шаги с живым ключом `sk_live_...`: у живого режима свои товары, цены и вебхук.
 
 ## Структура
 
@@ -93,3 +105,4 @@ src/components/    UI: карточки игр, фильтры, редактор
 - `npm run db:deploy` — применить миграции к базе
 - `npm run db:seed` — каталог + демо-аккаунты
 - `npm run db:seed:catalog` — только каталог (для продакшена)
+- `npm run stripe:setup` — создать товар, цены и (с `--webhook <url>`) вебхук в Stripe

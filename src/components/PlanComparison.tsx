@@ -2,8 +2,6 @@ import { Check, Minus } from "lucide-react";
 import { FREE_GAME_LIMIT, REVIEW_MAX } from "@/lib/plans";
 import { cn } from "@/lib/utils";
 
-export const PRO_PRICE = "299 ₽";
-
 type Row = { label: string; free: string | boolean; pro: string | boolean };
 
 export const PLAN_ROWS: Row[] = [

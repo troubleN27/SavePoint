@@ -5,7 +5,6 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { can } from "@/lib/plans";
-import type { Plan } from "@/lib/constants";
 import { usernameSchema } from "@/lib/validation";
 import type { ActionResult } from "./types";
 
@@ -35,22 +34,5 @@ export async function setProfilePublic(isPublic: boolean): Promise<ActionResult>
   }
   await db.user.update({ where: { id: user.id }, data: { isPublic } });
   revalidatePath("/settings");
-  return { ok: true };
-}
-
-/**
- * Демо-переключение тарифа. Оплата пока не подключена:
- * при интеграции платёжки здесь будет создание checkout-сессии,
- * а смена plan — в вебхуке об успешной оплате.
- */
-export async function changePlan(plan: Plan): Promise<ActionResult> {
-  const user = await getCurrentUser();
-  if (!user) return { ok: false, code: "AUTH", error: "Нужно войти" };
-  await db.user.update({
-    where: { id: user.id },
-    // При даунгрейде публичный профиль скрывается
-    data: plan === "PRO" ? { plan } : { plan, isPublic: false },
-  });
-  revalidatePath("/", "layout");
   return { ok: true };
 }

@@ -23,6 +23,14 @@ model User {
   bio          String?
   createdAt    DateTime @default(now())
 
+  // Подписка Stripe; plan выше — производное от её статуса (см. src/lib/billing.ts)
+  stripeCustomerId     String?   @unique
+  stripeSubscriptionId String?   @unique
+  subscriptionStatus   String?
+  subscriptionInterval String? // month | year
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean   @default(false)
+
   games           UserGame[]
   shelves         Shelf[]
   recommendations RecommendationCache?

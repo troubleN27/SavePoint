@@ -4,6 +4,16 @@ import type { Plan } from "./constants";
 export const FREE_GAME_LIMIT = 50;
 export const REVIEW_MAX: Record<Plan, number> = { FREE: 500, PRO: 5000 };
 
+export const BILLING_INTERVALS = ["month", "year"] as const;
+export type BillingInterval = (typeof BILLING_INTERVALS)[number];
+
+/** Цены Pro; должны совпадать с ценами в Stripe (scripts/stripe-setup.ts). */
+export const PRO_PRICES: Record<BillingInterval, { amount: number; label: string; per: string; perMonth: string }> = {
+  month: { amount: 499, label: "$4.99", per: "месяц", perMonth: "$4.99" },
+  year: { amount: 3999, label: "$39.99", per: "год", perMonth: "$3.33" },
+};
+export const YEARLY_DISCOUNT = "−33%";
+
 export type ProFeature = "unlimited" | "stats" | "wrapped" | "ai" | "shelves" | "publicProfile";
 
 export const PRO_FEATURES: Record<ProFeature, { title: string; description: string }> = {

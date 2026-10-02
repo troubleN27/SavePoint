@@ -13,7 +13,8 @@
     "postinstall": "prisma generate",
     "typecheck": "tsc --noEmit",
     "db:deploy": "prisma migrate deploy",
-    "db:seed:catalog": "tsx prisma/seed.ts --catalog-only"
+    "db:seed:catalog": "tsx prisma/seed.ts --catalog-only",
+    "stripe:setup": "tsx --env-file=.env scripts/stripe-setup.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.131.0",
@@ -28,6 +29,7 @@
     "react-dom": "19.1.0",
     "recharts": "^3.10.1",
     "server-only": "^0.0.1",
+    "stripe": "^23.0.0",
     "zod": "^4.6.5"
   },
   "devDependencies": {

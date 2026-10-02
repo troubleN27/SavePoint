@@ -3,8 +3,8 @@
 import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Check, Copy, ExternalLink, Loader2, Sparkles } from "lucide-react";
-import { changePlan, setProfilePublic, updateProfile } from "@/actions/profile";
+import { Check, Copy, ExternalLink, Loader2 } from "lucide-react";
+import { setProfilePublic, updateProfile } from "@/actions/profile";
 import { useUpgrade } from "./UpgradeModal";
 import { Button } from "./ui/Button";
 import { cn } from "@/lib/utils";
@@ -121,34 +121,5 @@ export function PublicProfileToggle({ isPublic: initial, username }: { isPublic:
         </div>
       )}
     </div>
-  );
-}
-
-export function PlanSwitcher({ plan }: { plan: string }) {
-  const router = useRouter();
-  const { openUpgrade } = useUpgrade();
-  const [pending, startTransition] = useTransition();
-
-  if (plan !== "PRO") {
-    return (
-      <Button variant="pro" size="lg" onClick={() => openUpgrade("unlimited")}>
-        <Sparkles className="size-4" /> Перейти на Pro
-      </Button>
-    );
-  }
-  return (
-    <Button
-      variant="outline"
-      disabled={pending}
-      onClick={() => {
-        if (!confirm("Вернуться на Free? Pro-функции станут недоступны, публичный профиль будет скрыт. Данные сохранятся.")) return;
-        startTransition(async () => {
-          await changePlan("FREE");
-          router.refresh();
-        });
-      }}
-    >
-      {pending && <Loader2 className="size-4 animate-spin" />} Вернуться на Free
-    </Button>
   );
 }

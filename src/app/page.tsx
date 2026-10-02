@@ -13,13 +13,13 @@ import {
   UserRound,
 } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth";
-import { FREE_GAME_LIMIT, REVIEW_MAX } from "@/lib/plans";
+import { FREE_GAME_LIMIT, PRO_PRICES, REVIEW_MAX, YEARLY_DISCOUNT } from "@/lib/plans";
 import { SEED_GAMES } from "@/lib/catalog-seed";
 import { Logo } from "@/components/Logo";
 import { LinkButton } from "@/components/ui/Button";
 import { ProBadge } from "@/components/ui/Badge";
 import { GameCover } from "@/components/GameCover";
-import { PlanTable, PRO_PRICE } from "@/components/PlanComparison";
+import { PlanTable } from "@/components/PlanComparison";
 import { cn } from "@/lib/utils";
 
 const HERO_GAMES = ["elden-ring", "hollow-knight", "baldurs-gate-3", "silent-hill-2", "hades", "cyberpunk-2077", "disco-elysium", "celeste", "outer-wilds"]
@@ -53,7 +53,7 @@ const FAQ = [
   { q: "Что будет с моими играми, если я вернусь с Pro на Free?", a: "Ничего не пропадёт: коллекция, оценки и отзывы сохранятся. Просто Pro-функции станут недоступны, а публичный профиль скроется." },
   { q: "Откуда берутся обложки и данные об играх?", a: "Из большой открытой базы игр. Если нужной игры там нет, её можно добавить вручную." },
   { q: "Как работают AI-рекомендации?", a: "Нейросеть смотрит на твои оценки, отзывы и брошенные игры и предлагает то, что с наибольшей вероятностью тебе зайдёт, — с объяснением почему." },
-  { q: "Как оплатить Pro?", a: "Сейчас SavePoint в раннем доступе: Pro включается бесплатно в демо-режиме прямо в настройках." },
+  { q: "Как оплатить Pro?", a: `Картой через Stripe: ${PRO_PRICES.month.label} в месяц или ${PRO_PRICES.year.label} в год. Отменить подписку можно в любой момент в настройках — Pro останется до конца оплаченного периода.` },
 ];
 
 export default async function Landing() {
@@ -252,9 +252,12 @@ export default async function Landing() {
               <h3 className="font-display text-xl font-bold text-neon-magenta">Pro</h3>
               <p className="mt-1 text-sm text-muted">Для тех, кто играет всерьёз</p>
               <div className="mt-6 font-display text-4xl font-black">
-                {PRO_PRICE}
+                {PRO_PRICES.month.label}
                 <span className="text-base font-normal text-muted"> / месяц</span>
               </div>
+              <p className="mt-1 text-sm text-muted">
+                или {PRO_PRICES.year.label} в год <span className="font-semibold text-red">{YEARLY_DISCOUNT}</span>
+              </p>
               <ul className="mt-6 flex-1 space-y-3 text-sm">
                 {[
                   "Безлимитная коллекция",
