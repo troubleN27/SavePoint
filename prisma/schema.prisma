@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// SQLite не поддерживает enum — значения валидируются в коде (src/lib/constants.ts)
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  username     String   @unique
+  plan         String   @default("FREE") // FREE | PRO
+  isPublic     Boolean  @default(false)
+  bio          String?
+  createdAt    DateTime @default(now())
+
+  games           UserGame[]
+  shelves         Shelf[]
+  recommendations RecommendationCache?
+}
+
+model Game {
+  id          String   @id @default(cuid())
+  rawgId      Int?     @unique
+  slug        String   @unique
+  title       String
+  coverUrl    String?
+  genres      String   @default("[]") // JSON string[]
+  platforms   String   @default("[]") // JSON string[]
+  releaseYear Int?
+  createdAt   DateTime @default(now())
+
+  entries UserGame[]
+
+  @@index([title])
+}
+
+model UserGame {
+  id             String    @id @default(cuid())
+  userId         String
+  gameId         String
+  status         String    // PLAYING | COMPLETED | WANT | DROPPED
+  rating         Int?
+  review         String?
+  hoursPlayed    Float?
+  platformPlayed String?
+  completedAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game       Game        @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  shelfItems ShelfItem[]
+
+  @@unique([userId, gameId])
+  @@index([userId, status])
+}
+
+model Shelf {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  description String?
+  isPublic    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  user  User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items ShelfItem[]
+}
+
+model ShelfItem {
+  id         String   @id @default(cuid())
+  shelfId    String
+  userGameId String
+  position   Int      @default(0)
+  addedAt    DateTime @default(now())
+
+  shelf    Shelf    @relation(fields: [shelfId], references: [id], onDelete: Cascade)
+  userGame UserGame @relation(fields: [userGameId], references: [id], onDelete: Cascade)
+
+  @@unique([shelfId, userGameId])
+}
+
+model RecommendationCache {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  source    String   // ai | algo
+  payload   String   // JSON
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

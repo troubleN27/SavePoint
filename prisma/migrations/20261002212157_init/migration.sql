@@ -1,0 +1,101 @@
+-- CreateTable
+CREATE TABLE "User" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "email" TEXT NOT NULL,
+    "passwordHash" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "username" TEXT NOT NULL,
+    "plan" TEXT NOT NULL DEFAULT 'FREE',
+    "isPublic" BOOLEAN NOT NULL DEFAULT false,
+    "bio" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- CreateTable
+CREATE TABLE "Game" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "rawgId" INTEGER,
+    "slug" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "coverUrl" TEXT,
+    "genres" TEXT NOT NULL DEFAULT '[]',
+    "platforms" TEXT NOT NULL DEFAULT '[]',
+    "releaseYear" INTEGER,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- CreateTable
+CREATE TABLE "UserGame" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT NOT NULL,
+    "gameId" TEXT NOT NULL,
+    "status" TEXT NOT NULL,
+    "rating" INTEGER,
+    "review" TEXT,
+    "hoursPlayed" REAL,
+    "platformPlayed" TEXT,
+    "completedAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "UserGame_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "UserGame_gameId_fkey" FOREIGN KEY ("gameId") REFERENCES "Game" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "Shelf" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+    "isPublic" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "Shelf_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "ShelfItem" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "shelfId" TEXT NOT NULL,
+    "userGameId" TEXT NOT NULL,
+    "position" INTEGER NOT NULL DEFAULT 0,
+    "addedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "ShelfItem_shelfId_fkey" FOREIGN KEY ("shelfId") REFERENCES "Shelf" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "ShelfItem_userGameId_fkey" FOREIGN KEY ("userGameId") REFERENCES "UserGame" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "RecommendationCache" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT NOT NULL,
+    "source" TEXT NOT NULL,
+    "payload" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "RecommendationCache_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Game_rawgId_key" ON "Game"("rawgId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Game_slug_key" ON "Game"("slug");
+
+-- CreateIndex
+CREATE INDEX "Game_title_idx" ON "Game"("title");
+
+-- CreateIndex
+CREATE INDEX "UserGame_userId_status_idx" ON "UserGame"("userId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "UserGame_userId_gameId_key" ON "UserGame"("userId", "gameId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ShelfItem_shelfId_userGameId_key" ON "ShelfItem"("shelfId", "userGameId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "RecommendationCache_userId_key" ON "RecommendationCache"("userId");
