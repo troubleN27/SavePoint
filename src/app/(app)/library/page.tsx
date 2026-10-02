@@ -32,7 +32,7 @@ export default async function LibraryPage({ searchParams }: { searchParams: SP }
   if (sp.minRating === "none") where.rating = null;
   else if (sp.minRating && Number(sp.minRating) > 0) where.rating = { gte: Number(sp.minRating) };
   const gameWhere: Prisma.GameWhereInput = {};
-  if (sp.q) gameWhere.title = { contains: sp.q };
+  if (sp.q) gameWhere.title = { contains: sp.q, mode: "insensitive" };
   if (sp.genre) gameWhere.genres = { contains: JSON.stringify(sp.genre) };
   if (Object.keys(gameWhere).length) where.game = gameWhere;
 

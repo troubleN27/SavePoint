@@ -58,7 +58,7 @@ async function upsertRawg(g: RawgGame): Promise<Game> {
 async function searchLocal(query: string, take: number) {
   const q = query.trim();
   return db.game.findMany({
-    where: q ? { title: { contains: q } } : undefined,
+    where: q ? { title: { contains: q, mode: "insensitive" } } : undefined,
     orderBy: q ? { title: "asc" } : { createdAt: "asc" },
     take,
   });
@@ -81,9 +81,9 @@ export async function searchGames(query: string, take = 24): Promise<{ games: Ga
 
 /** Находит игру по названию (для резолва AI-рекомендаций): сначала локально, затем в RAWG. */
 export async function findGameByTitle(title: string): Promise<Game | null> {
-  const local = await db.game.findFirst({ where: { title: { equals: title } } });
+  const local = await db.game.findFirst({ where: { title: { equals: title, mode: "insensitive" } } });
   if (local) return local;
-  const fuzzy = await db.game.findFirst({ where: { title: { contains: title } } });
+  const fuzzy = await db.game.findFirst({ where: { title: { contains: title, mode: "insensitive" } } });
   if (fuzzy) return fuzzy;
   if (!hasRawg()) return null;
   try {

@@ -109,6 +109,12 @@ async function main() {
     await db.game.upsert({ where: { slug: g.slug }, update: data, create: { slug: g.slug, ...data } });
   }
 
+  // Для продакшена: только каталог, без демо-аккаунтов с общеизвестным паролем
+  if (process.argv.includes("--catalog-only")) {
+    console.log("Готово (только каталог).");
+    return;
+  }
+
   const pro = await upsertUser("pro@savepoint.dev", "Алекс", "alex", "PRO", true);
   const free = await upsertUser("free@savepoint.dev", "Сэм", "sam", "FREE", false);
 

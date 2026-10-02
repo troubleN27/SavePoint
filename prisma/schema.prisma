@@ -2,12 +2,15 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// Postgres (Neon). DATABASE_URL — через пул соединений (для приложения),
+// DATABASE_URL_UNPOOLED — прямое подключение (для миграций Prisma CLI)
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
-// SQLite не поддерживает enum — значения валидируются в коде (src/lib/constants.ts)
+// Статусы и тарифы хранятся строками и валидируются в коде (src/lib/constants.ts)
 
 model User {
   id           String   @id @default(cuid())
@@ -47,7 +50,7 @@ model UserGame {
   gameId         String
   status         String    // PLAYING | COMPLETED | WANT | DROPPED
   rating         Int?
-  review         String?
+  review         String?   @db.Text
   hoursPlayed    Float?
   platformPlayed String?
   completedAt    DateTime?
@@ -91,7 +94,7 @@ model RecommendationCache {
   id        String   @id @default(cuid())
   userId    String   @unique
   source    String   // ai | algo
-  payload   String   // JSON
+  payload   String   @db.Text // JSON
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
